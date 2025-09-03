@@ -1,12 +1,18 @@
-module github.com/lestrrat-go/file-rotatelogs
+module github.com/Bensonzjy/file-rotatelogs
 
-go 1.12
+go 1.21
+
+toolchain go1.24.1
 
 require (
 	github.com/jonboulle/clockwork v0.1.0
-	github.com/lestrrat-go/strftime v0.0.0-20180821113735-8b31f9c59b0f
+	github.com/lestrrat-go/strftime v1.1.1
 	github.com/pkg/errors v0.8.1
-	github.com/stretchr/testify v1.3.0
-	github.com/tebeka/strftime v0.1.3
-	golang.org/x/review v0.0.0-20200515044942-a2b90d2f6e29 // indirect
+	github.com/stretchr/testify v1.10.0
+)
+
+require (
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
