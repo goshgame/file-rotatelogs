@@ -95,6 +95,7 @@ func New(p string, options ...Option) (*RotateLogs, error) {
 		rotationSize:  rotationSize,
 		rotationCount: rotationCount,
 		forceNewFile:  forceNewFile,
+		isFrist:       true,
 	}, nil
 }
 
@@ -120,53 +121,49 @@ func (rl *RotateLogs) getWriterNolock(bailOnRotateFail, useGenerationalNames boo
 	generation := rl.generation
 	previousFn := rl.curFn
 
-	// This filename contains the name of the "NEW" filename
-	// to log to, which may be newer than rl.currentFilename
-	baseFn := fileutil.GenerateFn(rl.pattern, rl.clock, rl.rotationTime)
-	filename := baseFn
-	var forceNewFile bool
+	// // This filename contains the name of the "NEW" filename
+	// // to log to, which may be newer than rl.currentFilename
+	// baseFn := fileutil.GenerateFn(rl.pattern, rl.clock, rl.rotationTime)
+	// filename := baseFn
+
+	// baseFn := rl.curBaseFn
+	// filename := rl.curBaseFn
+	// var forceNewFile bool
 
 	fi, err := os.Stat(rl.curFn)
 	sizeRotation := false
 	if err == nil && rl.rotationSize > 0 && rl.rotationSize <= fi.Size() {
-		forceNewFile = true
+		// forceNewFile = true
 		sizeRotation = true
 	}
 
-	if baseFn != rl.curBaseFn {
-		generation = 0
-		// even though this is the first write after calling New(),
-		// check if a new file needs to be created
-		if rl.forceNewFile {
-			forceNewFile = true
-		}
-	} else {
-		if !useGenerationalNames && !sizeRotation {
-			// nothing to do
-			return rl.outFh, nil
-		}
-		forceNewFile = true
-		generation++
+	if !useGenerationalNames && !sizeRotation && !rl.isFrist {
+		// nothing to do
+		return rl.outFh, nil
 	}
-	if forceNewFile {
-		// A new file has been requested. Instead of just using the
-		// regular strftime pattern, we create a new file name using
-		// generational names such as "foo.1", "foo.2", "foo.3", etc
-		var name string
-		for {
-			if generation == 0 {
-				name = filename
-			} else {
-				name = fmt.Sprintf("%s.%d", filename, generation)
-			}
-			if _, err := os.Stat(name); err != nil {
-				filename = name
+	// forceNewFile = true
+	generation++
+	filename := fileutil.GenerateFn(rl.pattern, rl.clock, rl.rotationTime)
 
-				break
-			}
-			generation++
-		}
-	}
+	// if forceNewFile {
+	// 	// A new file has been requested. Instead of just using the
+	// 	// regular strftime pattern, we create a new file name using
+	// 	// generational names such as "foo.1", "foo.2", "foo.3", etc
+	// 	var name string
+	// 	for {
+	// 		if generation == 0 {
+	// 			name = filename
+	// 		} else {
+	// 			name = fmt.Sprintf("%s.%d", filename, generation)
+	// 		}
+	// 		if _, err := os.Stat(name); err != nil {
+	// 			filename = name
+
+	// 			break
+	// 		}
+	// 		generation++
+	// 	}
+	// }
 
 	fh, err := fileutil.CreateFile(filename)
 	if err != nil {
@@ -194,9 +191,10 @@ func (rl *RotateLogs) getWriterNolock(bailOnRotateFail, useGenerationalNames boo
 
 	rl.outFh.Close()
 	rl.outFh = fh
-	rl.curBaseFn = baseFn
+	rl.curBaseFn = filename
 	rl.curFn = filename
 	rl.generation = generation
+	rl.isFrist = false
 
 	if h := rl.eventHandler; h != nil {
 		go h.Handle(&FileRotatedEvent{
