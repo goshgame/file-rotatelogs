@@ -1,4 +1,4 @@
-module github.com/Bensonzjy/file-rotatelogs
+module github.com/goshgame/file-rotatelogs
 
 go 1.24.1
 

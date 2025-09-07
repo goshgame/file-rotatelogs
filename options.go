@@ -3,7 +3,7 @@ package rotatelogs
 import (
 	"time"
 
-	"github.com/Bensonzjy/file-rotatelogs/internal/option"
+	"github.com/goshgame/file-rotatelogs/internal/option"
 )
 
 const (
