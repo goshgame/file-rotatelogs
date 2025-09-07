@@ -44,10 +44,8 @@ type RotateLogs struct {
 	eventHandler  Handler
 	outFh         *os.File
 	pattern       *strftime.Strftime
-	rotationTime  time.Duration
 	rotationSize  int64
 	rotationCount uint
-	forceNewFile  bool
 	isFrist       bool
 }
 

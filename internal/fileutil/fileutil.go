@@ -14,7 +14,7 @@ import (
 //
 // The bsase time that is used to generate the filename is truncated based
 // on the rotation time.
-func GenerateFn(pattern *strftime.Strftime, clock interface{ Now() time.Time }, rotationTime time.Duration) string {
+func GenerateFn(pattern *strftime.Strftime, clock interface{ Now() time.Time }) string {
 	now := clock.Now()
 
 	// XXX HACK: Truncate only happens in UTC semantics, apparently.
